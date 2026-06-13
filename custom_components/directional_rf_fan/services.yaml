@@ -1,0 +1,67 @@
+send_command:
+  fields:
+    entity_id:
+      required: true
+      selector:
+        entity:
+          integration: directional_rf_fan
+          domain: fan
+    command:
+      required: true
+      selector:
+        select:
+          options:
+            - "on"
+            - "off"
+            - "in_plus"
+            - "in_minus"
+            - "out_plus"
+            - "out_minus"
+
+step_up:
+  fields:
+    entity_id:
+      required: true
+      selector:
+        entity:
+          integration: directional_rf_fan
+          domain: fan
+    preset_mode:
+      required: false
+      selector:
+        select:
+          options:
+            - "In"
+            - "Out"
+
+step_down:
+  fields:
+    entity_id:
+      required: true
+      selector:
+        entity:
+          integration: directional_rf_fan
+          domain: fan
+    preset_mode:
+      required: false
+      selector:
+        select:
+          options:
+            - "In"
+            - "Out"
+
+recalibrate:
+  fields:
+    entity_id:
+      required: true
+      selector:
+        entity:
+          integration: directional_rf_fan
+          domain: fan
+    preset_mode:
+      required: false
+      selector:
+        select:
+          options:
+            - "In"
+            - "Out"

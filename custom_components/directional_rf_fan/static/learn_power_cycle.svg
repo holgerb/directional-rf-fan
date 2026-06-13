@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="420" viewBox="0 0 960 420" role="img" aria-labelledby="title desc">
+  <title id="title">Fan learning sequence</title>
+  <desc id="desc">Disconnect power, power on, then send the RF on signal for six seconds.</desc>
+  <defs>
+    <style>
+      .bg{fill:#f7f9fc}
+      .panel{fill:#fff;stroke:#d9e2ef;stroke-width:2}
+      .line{stroke:#24364f;stroke-width:10;stroke-linecap:round;stroke-linejoin:round}
+      .thin{stroke:#51647f;stroke-width:5;stroke-linecap:round;stroke-linejoin:round}
+      .accent{fill:#0b74de}
+      .accent2{fill:#00a36c}
+      .danger{fill:#d94141}
+      .muted{fill:#51647f}
+      .text{fill:#1f2a3a;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;font-weight:700}
+      .small{fill:#51647f;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;font-weight:600}
+    </style>
+  </defs>
+  <rect class="bg" width="960" height="420" rx="28"/>
+  <rect class="panel" x="34" y="44" width="256" height="300" rx="18"/>
+  <rect class="panel" x="352" y="44" width="256" height="300" rx="18"/>
+  <rect class="panel" x="670" y="44" width="256" height="300" rx="18"/>
+
+  <text class="text" x="162" y="92" text-anchor="middle" font-size="26">1. Power off</text>
+  <text class="small" x="162" y="316" text-anchor="middle" font-size="18">Disconnect the fan</text>
+  <path class="line" d="M136 145v68"/>
+  <path class="line" d="M188 145v68"/>
+  <path class="line" d="M116 213h92l-18 58h-56z"/>
+  <path class="danger" d="M217 143l-19-19-94 94 19 19z"/>
+  <path class="danger" d="M123 143l-19 19 94 94 19-19z"/>
+
+  <text class="text" x="480" y="92" text-anchor="middle" font-size="26">2. Power on</text>
+  <text class="small" x="480" y="316" text-anchor="middle" font-size="18">Start learning window</text>
+  <path class="thin" d="M480 137v44"/>
+  <circle cx="480" cy="219" r="72" fill="none" stroke="#24364f" stroke-width="10"/>
+  <path class="accent2" d="M480 150a69 69 0 1069 69h-26a43 43 0 11-43-43z"/>
+
+  <text class="text" x="798" y="92" text-anchor="middle" font-size="26">3. Send On</text>
+  <text class="small" x="798" y="316" text-anchor="middle" font-size="18">RF signal for 6 seconds</text>
+  <circle cx="798" cy="220" r="24" class="accent"/>
+  <path class="thin" d="M748 220h-38"/>
+  <path class="thin" d="M848 220h38"/>
+  <path class="thin" d="M798 170v-38"/>
+  <path class="thin" d="M798 270v38"/>
+  <path class="thin" d="M761 183l-28-28"/>
+  <path class="thin" d="M835 183l28-28"/>
+  <path class="thin" d="M761 257l-28 28"/>
+  <path class="thin" d="M835 257l28 28"/>
+  <text class="text" x="798" y="232" text-anchor="middle" font-size="24" fill="#fff">ON</text>
+
+  <path class="thin" d="M302 194h36"/>
+  <path class="thin" d="M326 176l18 18-18 18"/>
+  <path class="thin" d="M620 194h36"/>
+  <path class="thin" d="M644 176l18 18-18 18"/>
+</svg>

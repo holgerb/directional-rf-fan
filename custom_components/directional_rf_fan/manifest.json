@@ -1,0 +1,12 @@
+{
+  "domain": "directional_rf_fan",
+  "name": "Directional RF Fan",
+  "codeowners": ["@holgerb"],
+  "config_flow": true,
+  "dependencies": ["radio_frequency"],
+  "documentation": "https://github.com/holgerb/directional-rf-fan",
+  "issue_tracker": "https://github.com/holgerb/directional-rf-fan/issues",
+  "iot_class": "local_push",
+  "requirements": [],
+  "version": "0.1.0"
+}
