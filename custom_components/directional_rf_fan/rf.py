@@ -11,11 +11,6 @@ from .const import (
     DEFAULT_FREQUENCY,
     DEFAULT_TIMEBASE_US,
     LEARN_DURATION_SECONDS,
-    PWM_LONG_US,
-    PWM_RESET_US,
-    PWM_SHORT_US,
-    PWM_SYNC_HIGH_US,
-    RF_PROTOCOL_OOK_PWM_420_1220,
     RF_PROTOCOL_RC_SWITCH_1,
 )
 
@@ -63,30 +58,6 @@ def build_rc_switch_protocol_1_command(
     )
 
 
-def build_ook_pwm_420_1220_command(
-    code: str,
-    *,
-    repeats: int,
-    frequency: int = DEFAULT_FREQUENCY,
-) -> OOKCommand:
-    """Build the measured OOK PWM command used by the 0xBB97 remote."""
-    raw_bits = code_to_bits(code)
-    symbols = {
-        "0": [PWM_LONG_US, -PWM_SHORT_US],
-        "1": [PWM_SHORT_US, -PWM_LONG_US],
-    }
-    timings = [PWM_SYNC_HIGH_US, -PWM_SHORT_US]
-    for bit in raw_bits:
-        timings.extend(symbols[bit])
-    timings[-1] = -PWM_RESET_US
-
-    return OOKCommand(
-        frequency=frequency,
-        timings=timings,
-        repeat_count=repeats,
-    )
-
-
 def build_rf_command(
     code: str,
     *,
@@ -94,11 +65,7 @@ def build_rf_command(
     protocol: str = RF_PROTOCOL_RC_SWITCH_1,
     frequency: int = DEFAULT_FREQUENCY,
 ) -> OOKCommand:
-    """Build an OOK command for the configured fan RF protocol."""
-    if protocol == RF_PROTOCOL_OOK_PWM_420_1220:
-        return build_ook_pwm_420_1220_command(
-            code, repeats=repeats, frequency=frequency
-        )
+    """Build an OOK command for the fan RF protocol."""
     return build_rc_switch_protocol_1_command(
         code, repeats=repeats, frequency=frequency
     )

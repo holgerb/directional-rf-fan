@@ -18,23 +18,17 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from . import device_info_for_entry, normalize_preset_mode, step_command_for_preset
 from .const import (
-    COMMAND_PROFILE_A,
-    COMMAND_PROFILE_B,
-    COMMAND_PROFILE_FREQUENCIES,
     COMMAND_OFF,
     COMMAND_ON,
     COMMAND_SETTLE_TIME,
     COMMAND_TO_CONF,
-    CONF_COMMAND_PROFILE,
     CONF_FREQUENCY,
     CONF_REPEATS,
-    CONF_RF_PROTOCOL,
     CONF_TRANSMITTER,
     DOMAIN,
     PRESET_IN,
     PRESET_MODES,
     RECALIBRATE_STEPS,
-    RF_PROTOCOL_OOK_PWM_420_1220,
     RF_PROTOCOL_RC_SWITCH_1,
     DEFAULT_FREQUENCY,
     SPEED_COUNT,
@@ -321,14 +315,7 @@ class DirectionalRfFan(FanEntity):
 
     @property
     def _rf_protocol(self) -> str:
-        """Return the configured RF protocol, inferring it for older entries."""
-        protocol = self._entry.data.get(CONF_RF_PROTOCOL)
-        if protocol is not None:
-            return str(protocol)
-        if self._entry.data.get(CONF_COMMAND_PROFILE) in {
-            COMMAND_PROFILE_B,
-        }:
-            return RF_PROTOCOL_OOK_PWM_420_1220
+        """Return the supported RF protocol."""
         return RF_PROTOCOL_RC_SWITCH_1
 
     @property
@@ -337,7 +324,4 @@ class DirectionalRfFan(FanEntity):
         frequency = self._entry.data.get(CONF_FREQUENCY)
         if frequency is not None:
             return int(frequency)
-        profile = self._entry.data.get(CONF_COMMAND_PROFILE)
-        if profile in COMMAND_PROFILE_FREQUENCIES:
-            return COMMAND_PROFILE_FREQUENCIES[str(profile)]
         return DEFAULT_FREQUENCY

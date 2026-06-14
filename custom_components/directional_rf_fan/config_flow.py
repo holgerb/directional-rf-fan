@@ -20,9 +20,8 @@ from homeassistant.helpers import entity_registry as er, selector
 from .const import (
     CODE_SET_SOURCE_MANUAL,
     CODE_SET_SOURCE_SLOT,
+    COMMAND_PROFILE_A,
     COMMAND_PROFILE_COMMANDS,
-    COMMAND_PROFILE_FREQUENCIES,
-    COMMAND_PROFILE_PROTOCOLS,
     CONF_CODE_IN_MINUS,
     CONF_CODE_IN_PLUS,
     CONF_CODE_OFF,
@@ -43,10 +42,8 @@ from .const import (
     DOMAIN,
     FAN_SLOT_MANUAL,
     FAN_SLOT_OPTIONS,
-    FAN_SLOT_PROFILES,
     FAN_SLOT_REMOTE_ADDRESSES,
     LEARN_IMAGE_URL,
-    DEFAULT_FREQUENCY,
     RF_PROTOCOL_RC_SWITCH_1,
 )
 from .rf import (
@@ -60,16 +57,8 @@ MENU_LEARN_SUCCESS = "learn_success"
 MENU_LEARN_FAILED = "learn_failed"
 
 SLOT_LABELS = {
-    "1": "1 - echte Remote 1",
-    "2": "2 - echte Remote 2",
-    "3": "3 - synthetisch",
-    "4": "4 - synthetisch",
-    "5": "5 - synthetisch",
-    "6": "6 - synthetisch",
-    "7": "7 - synthetisch",
-    "8": "8 - synthetisch",
-    "9": "9 - synthetisch",
-    "10": "10 - synthetisch",
+    "1": "1 - Remote 1",
+    "2": "2 - Remote 2",
     FAN_SLOT_MANUAL: "Manuell",
 }
 
@@ -93,8 +82,6 @@ class DirectionalRfFanConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """Initialize flow state."""
         self._base_data: dict[str, Any] = {}
         self._selected_slot: str | None = None
-        self._profile_queue: list[str] = []
-        self._profile_index = 0
         self._candidate_data: dict[str, Any] | None = None
         self._learn_task: asyncio.Task[None] | None = None
         self._user_errors: dict[str, str] = {}
@@ -126,11 +113,8 @@ class DirectionalRfFanConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             if self._selected_slot == FAN_SLOT_MANUAL:
                 return await self.async_step_manual()
 
-            self._profile_queue = list(FAN_SLOT_PROFILES[self._selected_slot])
-            self._profile_index = 0
             self._candidate_data = self._build_slot_candidate(
                 self._selected_slot,
-                self._profile_queue[self._profile_index],
             )
             return await self.async_step_learn_prepare()
 
@@ -282,19 +266,7 @@ class DirectionalRfFanConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_learn_failed(
         self, user_input: dict[str, Any] | None = None
     ) -> config_entries.ConfigFlowResult:
-        """Try the next profile or return to slot selection."""
-        if (
-            self._selected_slot is not None
-            and self._selected_slot != FAN_SLOT_MANUAL
-            and self._profile_index + 1 < len(self._profile_queue)
-        ):
-            self._profile_index += 1
-            self._candidate_data = self._build_slot_candidate(
-                self._selected_slot,
-                self._profile_queue[self._profile_index],
-            )
-            return await self.async_step_learn_prepare()
-
+        """Return to slot selection after failed learning."""
         self._reset_learning_state()
         self._user_errors = {"base": "learning_failed"}
         return await self.async_step_user()
@@ -320,17 +292,17 @@ class DirectionalRfFanConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             )
         return transmitters
 
-    def _build_slot_candidate(self, slot: str, profile: str) -> dict[str, Any]:
-        """Build final entry data for a selected predefined slot/profile."""
+    def _build_slot_candidate(self, slot: str) -> dict[str, Any]:
+        """Build final entry data for a selected predefined slot."""
         address = FAN_SLOT_REMOTE_ADDRESSES[slot]
         return {
             **self._base_data,
-            **build_fan_codes(address, COMMAND_PROFILE_COMMANDS[profile]),
+            **build_fan_codes(address, COMMAND_PROFILE_COMMANDS[COMMAND_PROFILE_A]),
             CONF_CODE_SET_SOURCE: CODE_SET_SOURCE_SLOT,
             CONF_FAN_SLOT: slot,
-            CONF_COMMAND_PROFILE: profile,
-            CONF_RF_PROTOCOL: COMMAND_PROFILE_PROTOCOLS[profile],
-            CONF_FREQUENCY: COMMAND_PROFILE_FREQUENCIES[profile],
+            CONF_COMMAND_PROFILE: COMMAND_PROFILE_A,
+            CONF_RF_PROTOCOL: RF_PROTOCOL_RC_SWITCH_1,
+            CONF_FREQUENCY: DEFAULT_FREQUENCY,
             CONF_REMOTE_ADDRESS: f"{address:04X}",
         }
 
@@ -383,11 +355,9 @@ class DirectionalRfFanConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """Return placeholders for learning instruction translations."""
         assert self._candidate_data is not None
         slot = str(self._candidate_data.get(CONF_FAN_SLOT, FAN_SLOT_MANUAL))
-        profile = str(self._candidate_data.get(CONF_COMMAND_PROFILE, "manual"))
         address = str(self._candidate_data.get(CONF_REMOTE_ADDRESS, "manual"))
         return {
             "slot": SLOT_LABELS.get(slot, slot),
-            "profile": profile,
             "address": address,
             "code_on": str(self._candidate_data[CONF_CODE_ON]),
             "learn_image_url": LEARN_IMAGE_URL,
@@ -396,7 +366,5 @@ class DirectionalRfFanConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     def _reset_learning_state(self) -> None:
         """Reset candidate state after failed learning."""
         self._selected_slot = None
-        self._profile_queue = []
-        self._profile_index = 0
         self._candidate_data = None
         self._learn_task = None

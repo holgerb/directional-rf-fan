@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Directional RF Fan",
-        "description": "Waehle den RF-Transmitter und einen Luefter-Slot. Slot 1 und 2 sind echte aufgenommene Remotes; Slot 3 bis 10 sind synthetische Remotes. Manuelle Hex-Codes werden erst angezeigt, wenn Manuell gewaehlt wird.",
+        "description": "Waehle den RF-Transmitter und einen Luefter-Slot. Slot 1 und 2 sind echte aufgenommene Remotes. Manuelle Hex-Codes werden erst angezeigt, wenn Manuell gewaehlt wird.",
         "data": {
           "name": "Name",
           "transmitter": "RF-Transmitter",
@@ -31,7 +31,7 @@
       },
       "learn_prepare": {
         "title": "Luefter anlernen",
-        "description": "![Luefter anlernen]({learn_image_url})\\n\\n**Slot:** {slot}\\n**Profil:** {profile}\\n**Adresse:** {address}\\n**On-Code:** `{code_on}`\\n\\nTrenne den Luefter vom Strom. Schalte ihn wieder ein und waehle dann sofort **Weiter**. Die Integration sendet danach ca. 6 Sekunden lang das On-Signal."
+        "description": "![Luefter anlernen]({learn_image_url})\\n\\n**Slot:** {slot}\\n**Adresse:** {address}\\n**On-Code:** `{code_on}`\\n\\nTrenne den Luefter vom Strom. Schalte ihn wieder ein und waehle dann sofort **Weiter**. Die Integration sendet danach ca. 6 Sekunden lang das On-Signal."
       },
       "learn_send": {
         "title": "On-Signal wird gesendet"
@@ -42,7 +42,7 @@
       },
       "learn_confirm": {
         "title": "Anlernen bestaetigen",
-        "description": "Wurde der Luefter mit Slot {slot}, Profil {profile}, Adresse {address} angelernt?",
+        "description": "Wurde der Luefter mit Slot {slot}, Adresse {address} angelernt?",
         "menu_options": {
           "learn_success": "Hat funktioniert",
           "learn_failed": "Hat nicht funktioniert"

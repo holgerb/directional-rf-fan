@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Directional RF Fan",
-        "description": "Select the RF transmitter and a fan slot. Slot 1 and 2 are real captured remotes; slot 3 to 10 are synthetic remotes. Manual hex code fields are only shown when Manual is selected.",
+        "description": "Select the RF transmitter and a fan slot. Slot 1 and 2 are real captured remotes. Manual hex code fields are only shown when Manual is selected.",
         "data": {
           "name": "Name",
           "transmitter": "RF transmitter",
@@ -31,7 +31,7 @@
       },
       "learn_prepare": {
         "title": "Learn fan",
-        "description": "![Learn fan]({learn_image_url})\\n\\n**Slot:** {slot}\\n**Profile:** {profile}\\n**Address:** {address}\\n**On code:** `{code_on}`\\n\\nDisconnect the fan from power. Power it on again and immediately choose **Next**. The integration will then send the On signal for about 6 seconds."
+        "description": "![Learn fan]({learn_image_url})\\n\\n**Slot:** {slot}\\n**Address:** {address}\\n**On code:** `{code_on}`\\n\\nDisconnect the fan from power. Power it on again and immediately choose **Next**. The integration will then send the On signal for about 6 seconds."
       },
       "learn_send": {
         "title": "Sending On signal"
@@ -42,7 +42,7 @@
       },
       "learn_confirm": {
         "title": "Confirm learning",
-        "description": "Was the fan learned with slot {slot}, profile {profile}, address {address}?",
+        "description": "Was the fan learned with slot {slot}, address {address}?",
         "menu_options": {
           "learn_success": "It worked",
           "learn_failed": "It did not work"

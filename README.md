@@ -42,7 +42,7 @@ Earlier RTL-SDR PWM-looking candidates such as `BB97EA15`, `3B97EA15`, `772FD42B
 - Level buttons from `Level 1` to `Level 6`.
 - `Recalibrate` button and service.
 - Services for direct command sending and relative stepping.
-- Config flow with predefined fan slots and manual code entry.
+- Config flow with captured fan slots and manual code entry.
 
 Because RF control is one-way, Home Assistant tracks the last command it sent. It cannot know whether a physical remote changed the fan state.
 

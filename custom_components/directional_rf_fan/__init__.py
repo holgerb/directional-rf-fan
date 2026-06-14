@@ -18,8 +18,6 @@ from .const import (
     CODE_SET_SOURCE_SLOT,
     COMMAND_PROFILE_A,
     COMMAND_PROFILE_COMMANDS,
-    COMMAND_PROFILE_FREQUENCIES,
-    COMMAND_PROFILE_PROTOCOLS,
     COMMAND_IN_MINUS,
     COMMAND_IN_PLUS,
     COMMAND_OUT_MINUS,
@@ -31,12 +29,14 @@ from .const import (
     CONF_FREQUENCY,
     CONF_REMOTE_ADDRESS,
     CONF_RF_PROTOCOL,
+    DEFAULT_FREQUENCY,
     DOMAIN,
     FAN_SLOT_REMOTE_ADDRESSES,
     PLATFORMS,
     PRESET_IN,
     PRESET_MODES,
     PRESET_OUT,
+    RF_PROTOCOL_RC_SWITCH_1,
     STATIC_URL_PATH,
 )
 from .rf import build_fan_codes
@@ -169,8 +169,8 @@ async def async_migrate_entry(
         data.update(
             {
                 CONF_COMMAND_PROFILE: profile,
-                CONF_RF_PROTOCOL: COMMAND_PROFILE_PROTOCOLS[profile],
-                CONF_FREQUENCY: COMMAND_PROFILE_FREQUENCIES[profile],
+                CONF_RF_PROTOCOL: RF_PROTOCOL_RC_SWITCH_1,
+                CONF_FREQUENCY: DEFAULT_FREQUENCY,
                 CONF_REMOTE_ADDRESS: f"{address:04X}",
             }
         )

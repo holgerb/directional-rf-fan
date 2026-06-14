@@ -35,7 +35,6 @@ During setup, select one fan slot:
 
 - `1` uses the first captured real remote.
 - `2` uses the second captured real remote.
-- `3` to `10` use synthetic remote addresses. The setup flow tests command profile A first and profile B if A was not learned. Profile A uses rc_switch protocol 1; profile B is the measured PWM timing from the SDR captures.
 - `Manual` shows six hex code fields for custom code sets.
 
 To learn a fan, disconnect it from power, power it on again, and immediately
