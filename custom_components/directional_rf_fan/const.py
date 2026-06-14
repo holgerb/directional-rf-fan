@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 DOMAIN = "directional_rf_fan"
-PLATFORMS = ["fan", "button"]
+PLATFORMS = ["fan", "button", "sensor"]
 STATIC_URL_PATH = f"/{DOMAIN}_static"
 LEARN_IMAGE_URL = f"{STATIC_URL_PATH}/learn_power_cycle.svg"
 

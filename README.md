@@ -39,12 +39,14 @@ Earlier RTL-SDR PWM-looking candidates such as `BB97EA15`, `3B97EA15`, `772FD42B
 - Optimistic `fan` entity.
 - Direction presets: `In` and `Out`.
 - Percentage control mapped to six physical fan levels.
-- Level buttons from `Level 1` to `Level 6`.
+- Remembered level and direction across off/on.
+- Level buttons from `Level 1` to `Level 6` that preserve the current direction.
+- Diagnostic sensors for remembered direction and current step.
 - `Recalibrate` button and service.
 - Services for direct command sending and relative stepping.
 - Config flow with captured fan slots and manual code entry.
 
-Because RF control is one-way, Home Assistant tracks the last command it sent. It cannot know whether a physical remote changed the fan state.
+Because RF control is one-way, Home Assistant tracks the last command it sent and restores the previous optimistic state after restart. It cannot know whether a physical remote changed the fan state.
 
 ## Release Process
 

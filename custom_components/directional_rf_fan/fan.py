@@ -4,17 +4,25 @@ from __future__ import annotations
 
 import asyncio
 import logging
+from collections.abc import Callable
 
-from homeassistant.components.fan import FanEntity, FanEntityFeature
+from homeassistant.components.fan import (
+    ATTR_PERCENTAGE,
+    ATTR_PRESET_MODE,
+    FanEntity,
+    FanEntityFeature,
+)
 from homeassistant.components.radio_frequency import async_send_command
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_NAME, STATE_UNAVAILABLE
+from homeassistant.const import CONF_NAME, STATE_ON, STATE_UNAVAILABLE
 from homeassistant.core import Event, EventStateChangedData, HomeAssistant, callback
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.event import async_track_state_change_event
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
+from homeassistant.helpers.restore_state import RestoreEntity
+from voluptuous import Invalid
 
 from . import device_info_for_entry, normalize_preset_mode, step_command_for_preset
 from .const import (
@@ -47,7 +55,7 @@ async def async_setup_entry(
     async_add_entities([DirectionalRfFan(hass, entry)])
 
 
-class DirectionalRfFan(FanEntity):
+class DirectionalRfFan(FanEntity, RestoreEntity):
     """Optimistic RF fan controlled through a radio_frequency transmitter."""
 
     _attr_supported_features = (
@@ -70,14 +78,44 @@ class DirectionalRfFan(FanEntity):
         self._attr_percentage = 0
         self._attr_preset_mode = PRESET_IN
         self._speed_level = 0
+        self._state_update_callbacks: list[Callable[[], None]] = []
 
     @property
     def device_info(self) -> DeviceInfo:
         """Return the Home Assistant device for this fan."""
         return device_info_for_entry(self._entry)
 
+    @property
+    def is_on(self) -> bool:
+        """Return the optimistic power state."""
+        return bool(self._attr_is_on)
+
+    @property
+    def diagnostic_direction(self) -> str:
+        """Return the remembered airflow direction for diagnostic entities."""
+        return str(self._attr_preset_mode or PRESET_IN)
+
+    @property
+    def diagnostic_step(self) -> int:
+        """Return the remembered physical fan step for diagnostic entities."""
+        return int(self._speed_level)
+
+    @callback
+    def async_add_state_update_callback(
+        self, update_callback: Callable[[], None]
+    ) -> Callable[[], None]:
+        """Register a callback fired when optimistic state changes."""
+        self._state_update_callbacks.append(update_callback)
+
+        @callback
+        def _async_remove_callback() -> None:
+            self._state_update_callbacks.remove(update_callback)
+
+        return _async_remove_callback
+
     async def async_added_to_hass(self) -> None:
         """Register the entity for integration services."""
+        await self._async_restore_last_state()
         self.hass.data[DOMAIN]["entities"][self.entity_id] = self
         self.hass.data[DOMAIN]["entries"][self._entry.entry_id] = self
         transmitter_entity_id = er.async_validate_entity_id(
@@ -119,26 +157,50 @@ class DirectionalRfFan(FanEntity):
         preset_mode: str | None = None,
         **kwargs,
     ) -> None:
-        """Turn the fan on."""
+        """Turn the fan on with the remembered level and direction."""
         if preset_mode is not None:
             await self.async_set_preset_mode(preset_mode)
         elif percentage is not None:
             await self.async_set_percentage(percentage)
         else:
-            await self.async_send_command(COMMAND_ON)
+            previous_is_on = self._attr_is_on
+            previous_speed_level = self._speed_level
+            previous_percentage = self._attr_percentage
+            previous_preset_mode = self._attr_preset_mode
             self._attr_is_on = True
-            self._speed_level = max(self._speed_level, 1)
-            self._attr_percentage = self._level_to_percentage(self._speed_level)
+            if self._speed_level <= 0:
+                self._speed_level = 1
+                self._attr_percentage = self._level_to_percentage(self._speed_level)
+            self._async_write_optimistic_state()
+            try:
+                await self.async_send_command(COMMAND_ON)
+            except HomeAssistantError:
+                self._attr_is_on = previous_is_on
+                self._speed_level = previous_speed_level
+                self._attr_percentage = previous_percentage
+                self._attr_preset_mode = previous_preset_mode
+                self._async_write_optimistic_state()
+                raise
 
-        self.async_write_ha_state()
+        self._async_write_optimistic_state()
 
     async def async_turn_off(self, **kwargs) -> None:
-        """Turn the fan off."""
-        await self.async_send_command(COMMAND_OFF)
+        """Turn the fan off while preserving remembered level and direction."""
+        previous_is_on = self._attr_is_on
+        previous_speed_level = self._speed_level
+        previous_percentage = self._attr_percentage
+        previous_preset_mode = self._attr_preset_mode
         self._attr_is_on = False
-        self._attr_percentage = 0
-        self._speed_level = 0
-        self.async_write_ha_state()
+        self._async_write_optimistic_state()
+        try:
+            await self.async_send_command(COMMAND_OFF)
+        except HomeAssistantError:
+            self._attr_is_on = previous_is_on
+            self._speed_level = previous_speed_level
+            self._attr_percentage = previous_percentage
+            self._attr_preset_mode = previous_preset_mode
+            self._async_write_optimistic_state()
+            raise
 
     async def async_set_percentage(self, percentage: int) -> None:
         """Set the optimistic fan speed percentage using relative RF steps."""
@@ -146,7 +208,7 @@ class DirectionalRfFan(FanEntity):
         await self.async_set_level(target_level)
 
     async def async_set_level(self, target_level: int) -> None:
-        """Set the optimistic fan speed to one physical fan level."""
+        """Set the remembered physical fan level in the current direction."""
         target_level = max(0, min(SPEED_COUNT, int(target_level)))
         if target_level == 0:
             await self.async_turn_off()
@@ -173,7 +235,7 @@ class DirectionalRfFan(FanEntity):
         self._attr_is_on = True
         self._speed_level = target_level
         self._attr_percentage = self._level_to_percentage(target_level)
-        self.async_write_ha_state()
+        self._async_write_optimistic_state()
 
     async def async_set_preset_mode(self, preset_mode: str) -> None:
         """Set the airflow preset."""
@@ -183,7 +245,7 @@ class DirectionalRfFan(FanEntity):
 
         if not self._attr_is_on or self._speed_level <= 0:
             self._attr_preset_mode = target_preset
-            self.async_write_ha_state()
+            self._async_write_optimistic_state()
             return
 
         if self._speed_level >= SPEED_COUNT:
@@ -205,7 +267,7 @@ class DirectionalRfFan(FanEntity):
 
         self._attr_preset_mode = target_preset
         self._attr_percentage = self._level_to_percentage(self._speed_level)
-        self.async_write_ha_state()
+        self._async_write_optimistic_state()
 
     async def async_step(self, direction: int, preset_mode: str | None = None) -> None:
         """Send a relative up/down command for the current or requested preset."""
@@ -219,10 +281,10 @@ class DirectionalRfFan(FanEntity):
         self._attr_preset_mode = target_preset
         self._speed_level = self._step_level(self._speed_level, direction)
         self._attr_percentage = self._level_to_percentage(self._speed_level)
-        self.async_write_ha_state()
+        self._async_write_optimistic_state()
 
     async def async_recalibrate(self, preset_mode: str | None = None) -> None:
-        """Force the RF fan into a known optimistic baseline state."""
+        """Force the RF fan into a known level-1 baseline for one direction."""
         target_preset = (
             normalize_preset_mode(preset_mode)
             if preset_mode is not None
@@ -243,7 +305,7 @@ class DirectionalRfFan(FanEntity):
         self._attr_percentage = self._level_to_percentage(1)
         self._speed_level = 1
         self._attr_preset_mode = target_preset
-        self.async_write_ha_state()
+        self._async_write_optimistic_state()
 
     async def async_send_step_command(
         self, direction: int, preset_mode: str, *, wait_for_transmit: bool = False
@@ -312,6 +374,40 @@ class DirectionalRfFan(FanEntity):
         """Estimate RF airtime plus a small button-like gap."""
         frame_seconds = sum(abs(timing) for timing in timings) / 1_000_000
         return frame_seconds * (repeats + 1) + COMMAND_SETTLE_TIME
+
+    @callback
+    def _async_write_optimistic_state(self) -> None:
+        """Write fan state and notify dependent diagnostic entities."""
+        self.async_write_ha_state()
+        for update_callback in self._state_update_callbacks:
+            update_callback()
+
+    async def _async_restore_last_state(self) -> None:
+        """Restore the previous optimistic fan state after restart."""
+        last_state = await self.async_get_last_state()
+        if last_state is None:
+            return
+
+        self._attr_is_on = last_state.state == STATE_ON
+        if (preset_mode := last_state.attributes.get(ATTR_PRESET_MODE)) is not None:
+            try:
+                self._attr_preset_mode = normalize_preset_mode(str(preset_mode))
+            except Invalid:
+                self._attr_preset_mode = PRESET_IN
+
+        percentage = last_state.attributes.get(ATTR_PERCENTAGE)
+        if percentage is None:
+            return
+
+        try:
+            restored_percentage = int(percentage)
+        except (TypeError, ValueError):
+            return
+        self._attr_percentage = restored_percentage
+        self._speed_level = self._percentage_to_level(restored_percentage)
+        if self._attr_is_on and self._speed_level <= 0:
+            self._speed_level = 1
+            self._attr_percentage = self._level_to_percentage(self._speed_level)
 
     @property
     def _rf_protocol(self) -> str:

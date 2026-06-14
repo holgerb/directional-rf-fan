@@ -77,7 +77,7 @@
     },
     "step_up": {
       "name": "Stufe hoch",
-      "description": "Sendet den Plus-Befehl fuer das aktuelle oder ausgewaehlte Preset.",
+      "description": "Sendet den Plus-Befehl fuer die aktuelle oder ausgewaehlte Luftstromrichtung.",
       "fields": {
         "entity_id": {
           "name": "Luefter"
@@ -89,7 +89,7 @@
     },
     "step_down": {
       "name": "Stufe runter",
-      "description": "Sendet den Minus-Befehl fuer das aktuelle oder ausgewaehlte Preset.",
+      "description": "Sendet den Minus-Befehl fuer die aktuelle oder ausgewaehlte Luftstromrichtung.",
       "fields": {
         "entity_id": {
           "name": "Luefter"
@@ -101,7 +101,7 @@
     },
     "recalibrate": {
       "name": "Neu kalibrieren",
-      "description": "Sendet sechs Minus-Befehle fuer das aktuelle oder ausgewaehlte Preset und setzt den optimistischen Home-Assistant-Zustand auf Stufe 1.",
+      "description": "Sendet sechs Minus-Befehle fuer die aktuelle oder ausgewaehlte Luftstromrichtung und setzt den optimistischen Home-Assistant-Zustand in dieser Richtung auf Stufe 1.",
       "fields": {
         "entity_id": {
           "name": "Luefter"

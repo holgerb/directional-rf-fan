@@ -57,7 +57,7 @@ class DirectionalRfFanRecalibrateButton(ButtonEntity):
 
 
 class DirectionalRfFanLevelButton(ButtonEntity):
-    """Button that sets the optimistic RF fan to a fixed physical level."""
+    """Button that sets the optimistic RF fan to a fixed level in the remembered direction."""
 
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry, level: int) -> None:
         """Initialize the fixed level button."""
@@ -74,7 +74,7 @@ class DirectionalRfFanLevelButton(ButtonEntity):
         return device_info_for_entry(self._entry)
 
     async def async_press(self) -> None:
-        """Set the linked fan entity to this fixed physical level."""
+        """Set the linked fan entity to this level in the remembered direction."""
         fan = self.hass.data[DOMAIN]["entries"].get(self._entry.entry_id)
         if fan is None:
             raise HomeAssistantError("Linked Directional RF Fan entity is unavailable")

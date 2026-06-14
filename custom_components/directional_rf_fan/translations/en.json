@@ -77,7 +77,7 @@
     },
     "step_up": {
       "name": "Step up",
-      "description": "Send the plus command for the current or selected airflow preset.",
+      "description": "Send the plus command for the current or selected airflow direction.",
       "fields": {
         "entity_id": {
           "name": "Fan"
@@ -89,7 +89,7 @@
     },
     "step_down": {
       "name": "Step down",
-      "description": "Send the minus command for the current or selected airflow preset.",
+      "description": "Send the minus command for the current or selected airflow direction.",
       "fields": {
         "entity_id": {
           "name": "Fan"
@@ -101,7 +101,7 @@
     },
     "recalibrate": {
       "name": "Recalibrate",
-      "description": "Send six minus commands for the current or selected airflow preset and set Home Assistant's optimistic state to level 1.",
+      "description": "Send six minus commands for the current or selected airflow direction and set Home Assistant's optimistic state to level 1 in that direction.",
       "fields": {
         "entity_id": {
           "name": "Fan"
