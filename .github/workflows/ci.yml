@@ -29,7 +29,18 @@ jobs:
 
       - name: Verify RF protocols API
         run: |
-          python -m pip install "rf-protocols==4.0.1"
+          python - <<'PY'
+          import json
+          import subprocess
+          import sys
+
+          with open("custom_components/directional_rf_fan/manifest.json") as file:
+              requirements = json.load(file)["requirements"]
+          subprocess.run(
+              [sys.executable, "-m", "pip", "install", *requirements],
+              check=True,
+          )
+          PY
           python -c "from rf_protocols.commands.ook import OOKCommand"
 
       - name: Validate metadata and translations
@@ -58,8 +69,6 @@ jobs:
               raise SystemExit("manifest.json must define a version for HACS releases")
           if not manifest.get("config_flow"):
               raise SystemExit("manifest.json must enable config_flow")
-          if "rf-protocols==4.0.1" not in manifest.get("requirements", []):
-              raise SystemExit("manifest.json must install the directly imported rf-protocols package")
 
           hacs = json.loads(Path("hacs.json").read_text())
           if not hacs.get("name"):
