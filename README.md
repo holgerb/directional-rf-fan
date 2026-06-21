@@ -32,3 +32,13 @@ The currently tested ESP32 + CC1101 firmware was tuned to `433.89583 MHz` during
 - Config flow with captured fan slots and manual code entry.
 
 Because RF control is one-way, Home Assistant tracks the last command it sent and restores the previous optimistic state after restart. It cannot know whether a physical remote changed the fan state.
+
+## Development And Releases
+
+Pull request titles follow Conventional Commits. Use `fix:` for patches,
+`feat:` for features, and `!` for breaking changes. Documentation, test, and
+CI-only pull requests do not create a release on their own.
+
+Release Please collects releasable changes in a release pull request. Merging
+that pull request updates `CHANGELOG.md` and the integration version, then
+creates the matching `vX.Y.Z` tag and GitHub release for HACS.
