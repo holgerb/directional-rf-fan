@@ -1,0 +1,38 @@
+name: PR title
+
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - synchronize
+      - reopened
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate conventional PR title
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Validate title
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          python - <<'PY'
+          import os
+          import re
+
+          title = os.environ["PR_TITLE"]
+          pattern = re.compile(
+              r"^(feat|fix|perf|deps|revert|docs|style|refactor|test|build|ci|chore)"
+              r"(?:\([a-z0-9._/-]+\))?!?: .+"
+          )
+          if not pattern.fullmatch(title):
+              raise SystemExit(
+                  "PR title must use Conventional Commits, for example "
+                  "'fix: load the config flow' or 'feat!: change the entry format'"
+              )
+          PY
