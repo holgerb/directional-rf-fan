@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 
-from rf_protocols import OOKCommand
+from rf_protocols.commands.ook import OOKCommand
 
 from .const import (
     COMMAND_TO_CONF,

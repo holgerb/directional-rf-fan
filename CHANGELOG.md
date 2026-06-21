@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.1
+
+- Declare the directly imported `rf-protocols` runtime dependency.
+- Import `OOKCommand` from its actual module so Home Assistant can load the config flow.
+
 ## 0.1.0
 
 - Initial HACS-ready release.
